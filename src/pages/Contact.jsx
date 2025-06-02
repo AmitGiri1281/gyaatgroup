@@ -1,250 +1,262 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FiMapPin, FiPhone, FiMail, FiUser, FiMessageSquare } from 'react-icons/fi';
+import { FaPhone, FaEnvelope, FaHome, FaHandshake, FaBalanceScale, FaBuilding, FaShieldAlt, FaTools, FaLeaf, FaChevronDown } from 'react-icons/fa';
 
 const Contact = () => {
+  const [activeService, setActiveService] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    subject: '',
+    phone: '',
+    service: '',
     message: ''
   });
-  const [errors, setErrors] = useState({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) newErrors.email = 'Valid email required';
-    if (!formData.subject.trim()) newErrors.subject = 'Subject is required';
-    if (!formData.message.trim()) newErrors.message = 'Message is required';
-    return newErrors;
+  const services = [
+    {
+      id: 'aashray',
+      title: 'Aashray Realty Consultancy',
+      tagline: 'From your dream to your home',
+      description: 'Property dealing in Primary and Secondary Markets: Residential (Plot, House, Flat) and Commercial (Plot, Office/shop space, Industrial land/setup). Channel partner for Developers and corporate tie-ups (IJM City, Godrej Properties Limited and Kalaptaru group).',
+      icon: <FaHome className="text-2xl" />
+    },
+    {
+      id: 'vriddhi',
+      title: 'Vriddhi Loans',
+      tagline: 'Financial solutions PAN India',
+      description: 'Housing Loan, Loan against Property, Loan against Securities, Personal Loan, Vehicle Loan, Balance transfers, MSME Loans (CC, OD, Working capital loans), Business Loans.',
+      icon: <FaHandshake className="text-2xl" />
+    },
+    {
+      id: 'siddhant',
+      title: 'Siddhant Legal Services',
+      tagline: 'Expert real estate legal support',
+      description: 'Search Report, Due Diligence, Agreement to Sale, Sale deed & Registration, Property transfer, Mutation.',
+      icon: <FaBalanceScale className="text-2xl" />
+    },
+    {
+      id: 'kalpa',
+      title: 'Kalpa Architectural Services',
+      tagline: 'Designing your vision',
+      description: 'Architects and Interior designers to bring your property dreams to life.',
+      icon: <FaBuilding className="text-2xl" />
+    },
+    {
+      id: 'neeti',
+      title: 'Neeti Building Management',
+      tagline: 'Safety and security solutions',
+      description: 'PEC (Procurement, Erection and Commissioning), Annual Maintenance, Manpower management for building safety systems.',
+      icon: <FaShieldAlt className="text-2xl" />
+    },
+    {
+      id: 'sampaadana',
+      title: 'Sampaadana Suppliers',
+      tagline: 'Premium construction materials',
+      description: 'Tiles, Chimneys, Solar systems (including installation), Lifts, External cladding.',
+      icon: <FaTools className="text-2xl" />
+    },
+    {
+      id: 'manthan',
+      title: 'Manthan Consultancy',
+      tagline: 'Innovative project solutions',
+      description: 'Agriculture consultancy, Industrial consultancy, Medical environment setups through turnkey projects.',
+      icon: <FaLeaf className="text-2xl" />
+    }
+  ];
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length === 0) {
-      console.log('Form submitted:', formData);
-      setIsSubmitted(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setIsSubmitted(false), 3000);
-    } else {
-      setErrors(validationErrors);
-    }
+    // Add form submission logic here
+    console.log('Form submitted:', formData);
+    alert('Thank you for your message. We will contact you soon!');
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      service: '',
+      message: ''
+    });
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: '' });
+  const toggleService = (id) => {
+    setActiveService(activeService === id ? null : id);
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-white rounded-2xl shadow-xl overflow-hidden"
-        >
-          <div className="grid md:grid-cols-2 gap-0">
-            {/* Left Section - Contact Info & Image */}
-            <div className="bg-gradient-to-br from-primary to-secondary p-10 text-white relative">
-              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/asfalt-dark.png')" }} />
-              
-              <div className="relative z-10">
-                <h2 className="text-4xl font-bold mb-8">Let's Connect</h2>
-                
-                <div className="space-y-8">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-white/10 rounded-lg">
-                      <FiMapPin className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2">Our Headquarters</h3>
-                      <p className="text-gray-200">123 Green Street</p>
-                      <p className="text-gray-200">Eco City, EC 12345</p>
-                    </div>
-                  </div>
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
+            Gyaat - Let's Find Solutions
+          </h1>
+          <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500">
+            Comprehensive real estate services under one roof
+          </p>
+        </div>
 
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-white/10 rounded-lg">
-                      <FiPhone className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2">Contact Number</h3>
-                      <p className="text-gray-200">+1 (555) 123-4567</p>
-                      <p className="text-gray-200">Mon-Fri: 8am - 6pm EST</p>
-                    </div>
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          {/* Contact Form */}
+          <div className="bg-white p-8 rounded-lg shadow-xl">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Get in Touch</h2>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
 
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-white/10 rounded-lg">
-                      <FiMail className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2">Email Address</h3>
-                      <p className="text-gray-200">contact@greenride.com</p>
-                      <p className="text-gray-200">support@greenride.com</p>
-                    </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  id="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="service" className="block text-sm font-medium text-gray-700">
+                  Service Interested In
+                </label>
+                <select
+                  name="service"
+                  id="service"
+                  value={formData.service}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">Select a service</option>
+                  {services.map(service => (
+                    <option key={service.id} value={service.id}>{service.title}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+                  Your Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={4}
+                  value={formData.message}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Submit Inquiry
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Contact Info and Services */}
+          <div>
+            <div className="bg-white p-8 rounded-lg shadow-xl mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Contact Information</h2>
+              <div className="space-y-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 mt-1">
+                    <FaPhone className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-500">Phone</p>
+                    <p className="text-lg font-medium text-gray-900">+91 7758059177</p>
                   </div>
                 </div>
 
-                <div className="mt-10 rounded-xl overflow-hidden shadow-lg">
-                  <iframe
-                    title="GreenRide Location"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d317715.7119263355!2d-0.3817840693076126!3d51.52873519756609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d8a00baf21de75%3A0x52963a5addd52a99!2sLondon%2C%20UK!5e0!3m2!1sen!2sus!4v162987654321!5m2!1sen!2sus"
-                    className="w-full h-64 rounded-lg border-2 border-white/20"
-                    loading="lazy"
-                  />
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 mt-1">
+                    <FaEnvelope className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-500">Email</p>
+                    <p className="text-lg font-medium text-gray-900">infogyaat@gmail.com</p>
+                    <p className="text-sm font-medium text-gray-500 mt-1">Aashray Realty: aashrayrealtyconsultancy@gmail.com</p>
+                    <p className="text-sm font-medium text-gray-500">Vriddhi Loans: vriddhi.gyaat@gmail.com</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Section - Contact Form */}
-            <div className="p-10 bg-gray-50">
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <div className="max-w-md mx-auto">
-                  <div className="mb-10 text-center">
-                    <div className="inline-flex items-center justify-center bg-primary/10 p-4 rounded-full mb-6">
-                      <FiMessageSquare className="w-8 h-8 text-primary" />
-                    </div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Send Us a Message</h2>
-                    <p className="text-gray-600">We'll get back to you within 24 hours</p>
-                  </div>
-
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          className={`w-full px-4 py-3 rounded-lg border ${
-                            errors.name ? 'border-red-500' : 'border-gray-300'
-                          } focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
-                          placeholder="John Doe"
-                        />
-                        {errors.name && (
-                          <span className="absolute right-3 top-3 text-red-500">
-                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                          </span>
-                        )}
-                      </div>
-                      {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                      <div className="relative">
-                        <input
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          className={`w-full px-4 py-3 rounded-lg border ${
-                            errors.email ? 'border-red-500' : 'border-gray-300'
-                          } focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
-                          placeholder="john@example.com"
-                        />
-                        {errors.email && (
-                          <span className="absolute right-3 top-3 text-red-500">
-                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                          </span>
-                        )}
-                      </div>
-                      {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="subject"
-                          value={formData.subject}
-                          onChange={handleChange}
-                          className={`w-full px-4 py-3 rounded-lg border ${
-                            errors.subject ? 'border-red-500' : 'border-gray-300'
-                          } focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
-                          placeholder="How can we help?"
-                        />
-                        {errors.subject && (
-                          <span className="absolute right-3 top-3 text-red-500">
-                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                          </span>
-                        )}
-                      </div>
-                      {errors.subject && <p className="text-red-600 text-sm mt-1">{errors.subject}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Your Message</label>
-                      <div className="relative">
-                        <textarea
-                          name="message"
-                          value={formData.message}
-                          onChange={handleChange}
-                          rows="5"
-                          className={`w-full px-4 py-3 rounded-lg border ${
-                            errors.message ? 'border-red-500' : 'border-gray-300'
-                          } focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
-                          placeholder="Write your message here..."
-                        ></textarea>
-                        {errors.message && (
-                          <span className="absolute right-3 top-3 text-red-500">
-                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                          </span>
-                        )}
-                      </div>
-                      {errors.message && <p className="text-red-600 text-sm mt-1">{errors.message}</p>}
-                    </div>
-
+            <div className="bg-white p-8 rounded-lg shadow-xl">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Our Services</h2>
+              <div className="space-y-4">
+                {services.map((service) => (
+                  <div key={service.id} className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
-                      type="submit"
-                      className="w-full bg-primary hover:bg-secondary text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02] shadow-md hover:shadow-lg"
+                      onClick={() => toggleService(service.id)}
+                      className="w-full flex justify-between items-center p-4 text-left focus:outline-none"
                     >
-                      Send Message
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 mr-3 text-indigo-600">
+                          {service.icon}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-medium text-gray-900">{service.title}</h3>
+                          <p className="text-sm text-indigo-600">{service.tagline}</p>
+                        </div>
+                      </div>
+                      <FaChevronDown className={`transition-transform ${activeService === service.id ? 'transform rotate-180' : ''}`} />
                     </button>
-                  </form>
-                </div>
-              </motion.div>
+                    {activeService === service.id && (
+                      <div className="px-4 pb-4">
+                        <p className="text-gray-600">{service.description}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </motion.div>
-
-        <AnimatePresence>
-          {isSubmitted && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-xl flex items-center space-x-3"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Message sent successfully!</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </div>
       </div>
-    </section>
+    </div>
   );
 };
 

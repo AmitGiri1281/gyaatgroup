@@ -1,96 +1,207 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  FiMapPin, FiCreditCard, FiVideo, 
-  FiBell, FiShield, FiArrowRight, FiCheck
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  FiHome, FiMapPin, FiDollarSign, FiHeart, FiSearch,
+  FiUser, FiPhone, FiMail, FiClock, FiCheckCircle,
+  FiArrowRight, FiChevronRight, FiStar, FiGrid, FiLayers,
+  FiShield, FiBriefcase, FiTool, FiFeather, FiAnchor
 } from 'react-icons/fi';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/effect-coverflow';
 
-// Features data with updated images using free placeholder illustrations
-// In a real implementation, replace these with actual images from Undraw or Storyset
-const features = [
+// Data
+const propertyTypes = [
+  { name: "Residential", icon: <FiHome />, count: 245 },
+  { name: "Commercial", icon: <FiBriefcase />, count: 89 },
+  { name: "Plots", icon: <FiLayers />, count: 112 },
+  { name: "Villas", icon: <FiHome />, count: 67 },
+  { name: "Farm Houses", icon: <FiHome />, count: 34 },
+  { name: "Industrial", icon: <FiTool />, count: 42 }
+];
+
+const featuredProperties = [
   {
-    icon: <FiMapPin />,
-    title: "Real-Time Tracking",
-    description: "Live GPS tracking with route optimization and arrival alerts",
-    image: "placeholder-1.png" // Replace with actual tracking illustration
+    id: 1,
+    title: "Luxury Apartment in City Center",
+    location: "Mumbai, Maharashtra",
+    price: "₹2.5 Cr",
+    beds: 3,
+    baths: 2,
+    area: "1800 sq.ft",
+    image: "/property-1.jpg",
+    featured: true,
+    type: "Residential"
   },
   {
-    icon: <FiShield />,
-    title: "Safety First",
-    description: "360° camera monitoring and emergency response system",
-    image: "placeholder-2.png" // Replace with actual safety illustration
+    id: 2,
+    title: "Modern Office Space",
+    location: "Bangalore, Karnataka",
+    price: "₹4.2 Cr",
+    beds: "Open",
+    baths: 4,
+    area: "3200 sq.ft",
+    image: "/property-2.jpg",
+    featured: true,
+    type: "Commercial"
   },
   {
-    icon: <FiVideo />,
-    title: "Ride Monitoring",
-    description: "Live video feed access for parents and school administrators",
-    image: "placeholder-3.png" // Replace with actual monitoring illustration
+    id: 3,
+    title: "Premium Villa with Pool",
+    location: "Goa",
+    price: "₹5.8 Cr",
+    beds: 4,
+    baths: 3,
+    area: "4500 sq.ft",
+    image: "/property-3.jpg",
+    featured: true,
+    type: "Villas"
   },
   {
-    icon: <FiCreditCard />,
-    title: "Easy Payments",
-    description: "Flexible payment options with automatic billing",
-    image: "placeholder-4.png" // Replace with actual payment illustration
-  },
-  {
-    icon: <FiBell />,
-    title: "Smart Alerts",
-    description: "Instant notifications for delays, route changes, and emergencies",
-    image: "placeholder-5.png" // Replace with actual alerts illustration
+    id: 4,
+    title: "Residential Plot",
+    location: "Pune, Maharashtra",
+    price: "₹1.2 Cr",
+    beds: "-",
+    baths: "-",
+    area: "2400 sq.ft",
+    image: "/property-4.jpg",
+    featured: true,
+    type: "Plots"
   }
 ];
-// Testimonials with actual avatars
+
 const testimonials = [
   {
-    text: "GreenRide gave me peace of mind...",
-    name: "Sarah Johnson",
-    role: "Parent of 2 students",
-    avatar: "https://api.dicebear.com/7.x/personas/svg?seed=SarahJohnson" 
+    id: 1,
+    name: "Rajesh Sharma",
+    role: "Home Buyer",
+    avatar: "https://api.dicebear.com/7.x/personas/svg?seed=RajeshSharma",
+    content: "ARC made my home buying experience seamless. Their team was professional and understood exactly what I was looking for."
   },
   {
-    text: "The eco-friendly approach combined...",
-    name: "Michael Chen",
-    role: "School Administrator",
-    avatar: "https://api.dicebear.com/7.x/lorelei/svg?seed=MichaelChen"
+    id: 2,
+    name: "Priya Patel",
+    role: "Investor",
+    avatar: "https://api.dicebear.com/7.x/personas/svg?seed=PriyaPatel",
+    content: "As an NRI investor, I was hesitant about buying property in India. ARC's transparent process and regular updates gave me confidence."
   },
   {
-    text: "My kids love the comfortable rides...",
-    name: "Emma Wilson",
-    role: "Working Mother",
-    avatar: "https://api.dicebear.com/7.x/personas/svg?seed=EmmaWilson"
+    id: 3,
+    name: "Amit Desai",
+    role: "Commercial Client",
+    avatar: "https://api.dicebear.com/7.x/personas/svg?seed=AmitDesai",
+    content: "We found the perfect office space for our startup through ARC. Their market knowledge saved us months of searching."
   }
 ];
 
-// Stats section images
 const stats = [
-  { 
-    value: "92%", 
-    label: "Parent Satisfaction",
-    icon: "https://undraw.co/api/illustrations/satisfaction" 
+  { value: "15+", label: "Years Experience" },
+  { value: "2500+", label: "Happy Clients" },
+  { value: "₹500Cr+", label: "Property Value" },
+  { value: "50+", label: "Locations" }
+];
+
+const cities = [
+  { name: "Mumbai", properties: 342 },
+  { name: "Delhi", properties: 289 },
+  { name: "Bangalore", properties: 267 },
+  { name: "Hyderabad", properties: 198 },
+  { name: "Pune", properties: 231 },
+  { name: "Chennai", properties: 187 }
+];
+
+const businessServices = [
+  {
+    title: "Aashray Realty",
+    description: "From your dream to your home",
+    icon: <FiHome className="text-amber-500" />,
+    services: [
+      "Residential Properties",
+      "Commercial Properties",
+      "Primary/Secondary Market",
+      "Developer Partnerships"
+    ],
+    email: "aashrayrealtyconsultancy@gmail.com"
   },
-  { 
-    value: "85%", 
-    label: "Reduced Carbon Footprint",
-    icon: "https://undraw.co/api/illustrations/carbon" 
+  {
+    title: "Vriddhi Loans",
+    description: "Financial solutions for all needs",
+    icon: <FiDollarSign className="text-amber-500" />,
+    services: [
+      "Home Loans",
+      "Loan Against Property",
+      "Business Loans",
+      "Personal Loans"
+    ],
+    email: "vriddhi.gyaat@gmail.com"
   },
-  { 
-    value: "15+", 
-    label: "School Districts",
-    icon: "https://undraw.co/api/illustrations/school" 
+  {
+    title: "Siddhant Legal",
+    description: "Comprehensive real estate legal services",
+    icon: <FiShield className="text-amber-500" />,
+    services: [
+      "Property Due Diligence",
+      "Sale Deed & Registration",
+      "Title Verification",
+      "Property Transfer"
+    ]
   },
-  { 
-    value: "10K+", 
-    label: "Daily Riders",
-    icon: "https://undraw.co/api/illustrations/transport" 
+  {
+    title: "Kalpa Architectural",
+    description: "Designing your vision",
+    icon: <FiFeather className="text-amber-500" />,
+    services: [
+      "Architectural Design",
+      "Interior Design",
+      "Space Planning",
+      "3D Visualization"
+    ]
+  },
+  {
+    title: "Neeti BMS",
+    description: "Safety and security solutions",
+    icon: <FiTool className="text-amber-500" />,
+    services: [
+      "Security Systems",
+      "Building Automation",
+      "Maintenance Contracts",
+      "Manpower Management"
+    ]
+  },
+  {
+    title: "Sampaadana",
+    description: "Premium building materials",
+    icon: <FiLayers className="text-amber-500" />,
+    services: [
+      "Tiles & Flooring",
+      "Solar Solutions",
+      "Elevators",
+      "External Cladding"
+    ]
+  },
+  {
+    title: "Manthan",
+    description: "Consultancy & Turnkey Projects",
+    icon: <FiAnchor className="text-amber-500" />,
+    services: [
+      "Agricultural Consultancy",
+      "Industrial Projects",
+      "Medical Setups",
+      "Project Management"
+    ]
   }
 ];
 
-// Animation variants for reuse
+// Animation variants
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: { duration: 0.6 }
   }
@@ -100,507 +211,797 @@ const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
+    transition: { staggerChildren: 0.1 }
   }
 };
 
-function Home() {
+const slideIn = {
+  hidden: { opacity: 0, x: -50 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.6 }
+  }
+};
+
+const Home = () => {
+  const [activeFilter, setActiveFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [priceRange, setPriceRange] = useState([0, 100]);
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [activeService, setActiveService] = useState(0);
+  const navigate = useNavigate();
+
+  const filteredProperties = featuredProperties.filter(property => {
+    const matchesFilter = activeFilter === "All" || property.type === activeFilter;
+    const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         property.location.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCity = !selectedCity || property.location.includes(selectedCity);
+    
+    return matchesFilter && matchesSearch && matchesCity;
+  });
+
+  const handlePropertyClick = (id) => {
+    navigate(`/property/${id}`);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setShowSearchModal(false);
+    // You would typically navigate to search results here
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveService((prev) => (prev + 1) % businessServices.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="font-[Poppins] overflow-hidden bg-gradient-to-b from-emerald-50/30 to-white">
-      {/* Hero Section - Enhanced with better gradients and animations */}
-      <section className="relative py-24 md:py-32 overflow-hidden">
-        {/* Decorative background elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-200 rounded-full blur-3xl opacity-30 -z-10" />
-        <div className="absolute -bottom-20 left-20 w-80 h-80 bg-emerald-100 rounded-full blur-3xl opacity-30 -z-10" />
-        <div className="absolute top-40 left-0 w-64 h-64 bg-emerald-300/20 rounded-full blur-3xl -z-10" />
+    <div className="font-[Poppins] bg-gray-50 overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative h-screen max-h-[800px] bg-gray-900 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40 z-10" />
+        <div className="absolute inset-0">
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source src="/real-estate-hero.mp4" type="video/mp4" />
+            <img src="/hero-realestate.jpg" alt="Luxury Home" className="w-full h-full object-cover" />
+          </video>
+        </div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+        <div className="relative z-20 h-full flex items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <motion.div 
-              className="md:w-1/2"
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="text-white max-w-2xl"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
             >
-              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                Smarter, Safer & 
-                <span className="bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
-                  {" Greener "}
-                </span> 
-                Rides
-              </h1>
-              <p className="text-xl text-gray-600 mb-8 max-w-xl leading-relaxed">
-                Our eco-friendly fleet provides safe, reliable transportation with real-time tracking and monitoring for your peace of mind.
-              </p>
-              <div className="flex flex-wrap gap-5">
-                <motion.div 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Link 
-                    to="/subscription" 
-                    className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-emerald-200/50 hover:shadow-xl transition-all duration-300 flex items-center gap-3"
-                  >
-                    Explore Plans
-                    <FiArrowRight className="text-white" />
-                  </Link>
-                </motion.div>
-                <motion.div 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Link 
-                    to="/signup" 
-                    className="px-8 py-4 bg-white text-emerald-600 border-2 border-emerald-500 rounded-xl font-semibold shadow-md hover:bg-emerald-50 transition-all duration-300"
-                  >
-                    Get Started
-                  </Link>
-                </motion.div>
-              </div>
-              
-              {/* Trust badges */}
-              <motion.div 
-                className="mt-10 flex flex-wrap gap-6 items-center"
+              <motion.h1 
+                className="text-4xl md:text-6xl font-bold mb-6 leading-tight"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
               >
-                <div className="flex items-center gap-2">
-                  <div className="bg-emerald-100 p-2 rounded-full">
-                    <FiCheck className="text-emerald-600" />
-                  </div>
-                  <span className="text-sm text-gray-600 font-medium">Eco-friendly</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="bg-emerald-100 p-2 rounded-full">
-                    <FiCheck className="text-emerald-600" />
-                  </div>
-                  <span className="text-sm text-gray-600 font-medium">Safety certified</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="bg-emerald-100 p-2 rounded-full">
-                    <FiCheck className="text-emerald-600" />
-                  </div>
-                  <span className="text-sm text-gray-600 font-medium">24/7 support</span>
-                </div>
-              </motion.div>
-            </motion.div>
-            
-            <motion.div 
-              className="md:w-1/2 relative"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-            >
-<<<<<<< HEAD
-              <div className="relative z-10">
-                <motion.img 
-                  src="hero.png" // Replace with actual hero image of electric school bus
-                  alt="Electric School Bus" 
-                  className="rounded-3xl shadow-2xl w-full"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                />
-                
-                {/* Floating elements */}
-                <motion.div 
-                  className="absolute -left-6 -bottom-6 bg-white p-4 rounded-2xl shadow-lg flex items-center gap-3"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.9, duration: 0.5 }}
-                >
-                  <div className="bg-emerald-100 p-3 rounded-xl">
-                    <FiMapPin className="text-emerald-600 text-lg" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Live tracking</p>
-                    <p className="font-semibold text-sm">Real-time updates</p>
-                  </div>
-                </motion.div>
-                
-                <motion.div 
-                  className="absolute -right-2 top-10 bg-white p-4 rounded-2xl shadow-lg flex items-center gap-3"
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.1, duration: 0.5 }}
-                >
-                  <div className="bg-emerald-100 p-3 rounded-xl">
-                    <FiShield className="text-emerald-600 text-lg" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Safety rated</p>
-                    <p className="font-semibold text-sm">5-star service</p>
-                  </div>
-                </motion.div>
-              </div>
+                Find Your <span className="text-amber-500">Dream</span> Property
+              </motion.h1>
+              <motion.p 
+                className="text-xl md:text-2xl mb-8 text-gray-300"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+              >
+                Gyaat - Comprehensive real estate and business solutions under one roof
+              </motion.p>
               
-              {/* Background blur effects */}
-              <div className="absolute inset-0 bg-emerald-100 opacity-20 blur-3xl -z-0" />
-              <div className="absolute -top-20 -right-20 w-96 h-96 bg-emerald-200/50 rounded-full blur-3xl -z-10" />
-=======
-              <img 
-                src="/hero.png" 
-                alt="Electric School Bus" 
-                className="rounded-xl shadow-lg w-full"
-              />
->>>>>>> 5b7d2763fee249e9561d05544447396b9f761035
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.9, duration: 0.8 }}
+                className="flex flex-col sm:flex-row gap-4"
+              >
+                <button 
+                  onClick={() => setShowSearchModal(true)}
+                  className="px-8 py-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold shadow-lg flex items-center gap-3 transition-all duration-300"
+                >
+                  <FiSearch className="text-xl" />
+                  Search Properties
+                </button>
+                <Link
+                  to="/services"
+                  className="px-8 py-4 bg-transparent border-2 border-white text-white hover:bg-white/10 rounded-lg font-semibold flex items-center gap-3 transition-all duration-300"
+                >
+                  Explore Our Services
+                </Link>
+              </motion.div>
             </motion.div>
           </div>
         </div>
-      </section>
-
-      {/* Stats Section - New addition */}
-      <section className="py-16 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 bg-white rounded-3xl shadow-xl p-8 md:p-10 relative overflow-hidden"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-          >
-            {stats.map((stat, index) => (
-              <motion.div 
-                key={index} 
-                className="text-center"
-                variants={fadeInUp}
-              >
-                <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent mb-2">
-                  {stat.value}
-                </h3>
-                <p className="text-gray-600">{stat.label}</p>
-              </motion.div>
-            ))}
-            
-            {/* Background gradient for stats section */}
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-50 to-transparent opacity-40 -z-10" />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Features Section - Enhanced with better cards and animations */}
-      <section className="py-24 relative">
-        <div className="absolute top-0 right-40 w-72 h-72 bg-emerald-100 rounded-full blur-3xl opacity-30 -z-10" />
-        <div className="absolute bottom-20 left-20 w-80 h-80 bg-emerald-200/30 rounded-full blur-3xl -z-10" />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <motion.h2 
-              className="text-4xl font-bold text-gray-900 mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-            >
-              Why Choose 
-              <span className="bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
-                {" GreenRide"}
-              </span>
-            </motion.h2>
-            <motion.p 
-              className="text-xl text-gray-600 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              Eco-friendly transportation meets cutting-edge technology for the safest school commute
-            </motion.p>
-          </div>
-          
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-          >
-            {features.map((feature, index) => (
-              <motion.div 
-                key={index}
-                variants={fadeInUp}
-                whileHover={{ y: -12, transition: { duration: 0.3 } }}
-                className="bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-emerald-50 group"
-              >
-                <div className="relative mb-8 overflow-hidden rounded-2xl">
-                  <motion.img 
-                    src={feature.image}
-                    alt={feature.title}
-                    className="w-full h-52 object-cover transform transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-600 to-emerald-400 px-5 py-3 rounded-full shadow-lg">
-                    {React.cloneElement(feature.icon, { className: "text-white text-xl" })}
-                  </div>
+        {/* Stats floating bar */}
+        <motion.div 
+          className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md z-20 py-6 shadow-lg"
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.8 }}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <h3 className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</h3>
+                  <p className="text-gray-600 font-medium">{stat.label}</p>
                 </div>
-                <h3 className="text-2xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
       </section>
 
-      {/* Testimonials Section - Enhanced with better cards and avatars */}
-      <section className="py-24 bg-gradient-to-b from-emerald-50/70 to-white relative overflow-hidden">
-        <div className="absolute top-40 right-0 w-96 h-96 bg-emerald-100 rounded-full blur-3xl opacity-30 -z-10" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-emerald-200/30 rounded-full blur-3xl -z-10" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <motion.h2 
-              className="text-4xl font-bold text-gray-900 mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-            >
-              Trusted by
-              <span className="bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
-                {" Parents"}
-              </span>
-            </motion.h2>
-            <motion.p 
-              className="text-xl text-gray-600 max-w-2xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              Hear from families who trust GreenRide with their children's transportation
-            </motion.p>
-          </div>
-          
+      {/* Search Modal */}
+      <AnimatePresence>
+        {showSearchModal && (
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
-            {testimonials.map((testimonial, index) => (
-              <motion.div 
-                key={index}
-                variants={fadeInUp}
-                whileHover={{ y: -10, transition: { duration: 0.3 } }}
-                className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-emerald-50"
-              >
-                {/* Quotation mark */}
-                <div className="text-emerald-200 text-6xl font-serif absolute top-4 left-6">"</div>
-                
-                <div className="mb-8 flex items-center">
-                  <div className="mr-4 w-16 h-16 rounded-full overflow-hidden border-4 border-emerald-100 shadow-md">
-                    <img 
-                      src={testimonial.avatar} 
-                      alt={testimonial.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-lg text-gray-900">{testimonial.name}</h4>
-                    <p className="text-sm text-emerald-600">{testimonial.role}</p>
-                  </div>
-                </div>
-                
-                <p className="text-gray-600 text-lg leading-relaxed relative z-10">
-                  "{testimonial.text}"
-                </p>
-                
-                {/* Star rating */}
-                <div className="mt-6 flex text-amber-400">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* How It Works Section - New addition */}
-      <section className="py-24 relative bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <motion.h2 
-              className="text-4xl font-bold text-gray-900 mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-            >
-              How 
-              <span className="bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
-                {" GreenRide "}
-              </span>
-              Works
-            </motion.h2>
-            <motion.p 
-              className="text-xl text-gray-600 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              Simple steps to start your eco-friendly transportation journey
-            </motion.p>
-          </div>
-          
-          <div className="relative mt-20">
-            {/* Connection line */}
-            <div className="absolute top-1/4 left-0 right-0 h-2 bg-emerald-100 hidden md:block" />
-            
             <motion.div 
-              className="grid grid-cols-1 md:grid-cols-3 gap-16 relative z-10"
+              className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900">Advanced Property Search</h3>
+                  <button 
+                    onClick={() => setShowSearchModal(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                
+                <form onSubmit={handleSearchSubmit}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <label className="block text-gray-700 mb-2">Location</label>
+                      <select 
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        value={selectedCity}
+                        onChange={(e) => setSelectedCity(e.target.value)}
+                      >
+                        <option value="">Any Location</option>
+                        {cities.map(city => (
+                          <option key={city.name} value={city.name}>{city.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-gray-700 mb-2">Property Type</label>
+                      <select 
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        value={activeFilter}
+                        onChange={(e) => setActiveFilter(e.target.value)}
+                      >
+                        <option value="All">All Types</option>
+                        {propertyTypes.map(type => (
+                          <option key={type.name} value={type.name}>{type.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-gray-700 mb-2">Price Range (₹)</label>
+                      <div className="flex items-center gap-4">
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max="100" 
+                          step="5"
+                          className="w-full"
+                          value={priceRange[1]}
+                          onChange={(e) => setPriceRange([priceRange[0], e.target.value])}
+                        />
+                        <span className="text-amber-600 font-medium whitespace-nowrap">₹{priceRange[0]}L - ₹{priceRange[1]}Cr</span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-gray-700 mb-2">Keywords</label>
+                      <input 
+                        type="text" 
+                        placeholder="Search by name, features..."
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end gap-4">
+                    <button 
+                      type="button"
+                      onClick={() => setShowSearchModal(false)}
+                      className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit"
+                      className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors"
+                    >
+                      <FiSearch />
+                      Search Properties
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Property Types */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Explore <span className="text-amber-600">Property</span> Types
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Discover the perfect property that matches your needs and lifestyle
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            {propertyTypes.map((type, index) => (
+              <motion.div 
+                key={index}
+                variants={fadeInUp}
+                whileHover={{ y: -10 }}
+                className="bg-white rounded-xl shadow-md hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 cursor-pointer group"
+              >
+                <div className="p-6 text-center">
+                  <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-600 text-2xl group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                    {type.icon}
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{type.name}</h3>
+                  <p className="text-gray-600">{type.count} Properties</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Featured Properties */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+                <span className="text-amber-600">Featured</span> Properties
+              </h2>
+              <p className="text-gray-600 mt-2">Handpicked properties for you</p>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className="flex flex-wrap gap-2 bg-white rounded-lg p-1 shadow-sm border border-gray-200">
+                {["All", ...propertyTypes.map(t => t.name)].map((filter, i) => (
+                  <button
+                    key={i}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeFilter === filter ? 'bg-amber-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                    onClick={() => setActiveFilter(filter)}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+          
+          {filteredProperties.length > 0 ? (
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
               variants={staggerContainer}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true }}
             >
-              {/* Step 1 */}
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center text-center"
+              {filteredProperties.map((property, index) => (
+                <motion.div 
+                  key={property.id}
+                  variants={fadeInUp}
+                  className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300"
+                  whileHover={{ y: -10 }}
+                >
+                  <div className="relative">
+                    <img 
+                      src={property.image} 
+                      alt={property.title} 
+                      className="w-full h-60 object-cover"
+                    />
+                    {property.featured && (
+                      <div className="absolute top-4 left-4 bg-amber-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                        Featured
+                      </div>
+                    )}
+                    <button className="absolute top-4 right-4 bg-white/90 p-2 rounded-full text-gray-800 hover:text-amber-600 transition-colors">
+                      <FiHeart />
+                    </button>
+                  </div>
+                  
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-xl font-bold text-gray-900">{property.title}</h3>
+                      <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded">
+                        {property.type}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center text-gray-600 mb-4">
+                      <FiMapPin className="mr-1" size={14} />
+                      <span className="text-sm">{property.location}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex space-x-4 text-sm text-gray-600">
+                        <span className="flex items-center">
+                          <FiHome className="mr-1" size={14} />
+                          {property.beds}
+                        </span>
+                        <span className="flex items-center">
+                          <FiCheckCircle className="mr-1" size={14} />
+                          {property.baths}
+                        </span>
+                        <span className="flex items-center">
+                          <FiLayers className="mr-1" size={14} />
+                          {property.area}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+                      <span className="text-xl font-bold text-amber-600">{property.price}</span>
+                      <button 
+                        onClick={() => handlePropertyClick(property.id)}
+                        className="text-amber-600 hover:text-amber-700 font-medium flex items-center"
+                      >
+                        View Details <FiChevronRight className="ml-1" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <div className="text-center py-12 bg-white rounded-xl shadow-sm">
+              <h3 className="text-xl font-medium text-gray-700">No properties match your current filters</h3>
+              <button 
+                onClick={() => {
+                  setActiveFilter("All");
+                  setSearchQuery("");
+                  setSelectedCity("");
+                }}
+                className="mt-4 text-amber-600 hover:text-amber-700 font-medium"
               >
-                <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mb-6 shadow-lg">
-                  <span className="text-2xl font-bold text-emerald-600">1</span>
+                Clear filters
+              </button>
+            </div>
+          )}
+          
+          <motion.div 
+            className="text-center mt-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            viewport={{ once: true }}
+          >
+            <Link 
+              to="/properties"
+              className="inline-flex items-center px-6 py-3 border border-amber-600 text-amber-600 rounded-lg font-medium hover:bg-amber-600 hover:text-white transition-colors"
+            >
+              View All Properties
+              <FiArrowRight className="ml-2" />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Our Services */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Our <span className="text-amber-600">Comprehensive</span> Services
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              End-to-end solutions for all your real estate needs
+            </p>
+          </motion.div>
+
+          <div className="relative h-96 mb-16">
+            {businessServices.map((service, index) => (
+              <motion.div
+                key={index}
+                className={`absolute inset-0 bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-1000 ${index === activeService ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                animate={{
+                  opacity: index === activeService ? 1 : 0,
+                  y: index === activeService ? 0 : 20
+                }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="flex flex-col lg:flex-row h-full">
+                  <div className="lg:w-1/2 h-64 lg:h-full">
+                    <img 
+                      src={`/service-${index+1}.jpg`} 
+                      alt={service.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="lg:w-1/2 p-8 flex flex-col justify-center">
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mr-4">
+                        {service.icon}
+                      </div>
+                      <h3 className="text-2xl font-bold text-gray-900">{service.title}</h3>
+                    </div>
+                    <p className="text-gray-600 mb-6">{service.description}</p>
+                    <ul className="grid grid-cols-2 gap-3 mb-6">
+                      {service.services.map((item, i) => (
+                        <li key={i} className="flex items-center text-gray-700">
+                          <FiCheckCircle className="text-amber-500 mr-2" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                    {service.email && (
+                      <div className="mt-auto">
+                        <Link 
+                          to={`/contact?service=${service.title}`}
+                          className="inline-flex items-center px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors"
+                        >
+                          Contact for {service.title}
+                          <FiArrowRight className="ml-2" />
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <h3 className="text-2xl font-semibold mb-4">Sign Up</h3>
-                <p className="text-gray-600">Create your account and tell us about your transportation needs</p>
               </motion.div>
+            ))}
+          </div>
+
+          <div className="flex justify-center gap-2">
+            {businessServices.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveService(index)}
+                className={`w-3 h-3 rounded-full transition-colors ${index === activeService ? 'bg-amber-600' : 'bg-gray-300'}`}
+                aria-label={`Go to service ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row gap-12 items-center">
+            <motion.div 
+              className="lg:w-1/2"
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className="relative rounded-xl overflow-hidden shadow-xl">
+                <img 
+                  src="/about-team.jpg" 
+                  alt="Gyaat Team" 
+                  className="w-full h-auto"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                  <h3 className="text-white text-xl font-semibold">15+ Years of Trusted Service</h3>
+                  <p className="text-white/80 text-sm">Serving clients since 2008</p>
+                </div>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              className="lg:w-1/2"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                Why Choose <span className="text-amber-600">Gyaat</span>
+              </h2>
               
-              {/* Step 2 */}
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center text-center"
-              >
-                <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mb-6 shadow-lg">
-                  <span className="text-2xl font-bold text-emerald-600">2</span>
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                      <FiCheckCircle size={20} />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Trusted Expertise</h3>
+                    <p className="text-gray-600">
+                      With over 15 years in the real estate industry, we bring unmatched market knowledge and negotiation skills.
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-semibold mb-4">Choose Plan</h3>
-                <p className="text-gray-600">Select the transportation plan that works best for your family</p>
-              </motion.div>
-              
-              {/* Step 3 */}
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center text-center"
-              >
-                <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mb-6 shadow-lg">
-                  <span className="text-2xl font-bold text-emerald-600">3</span>
+                
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                      <FiShield size={20} />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Verified Properties</h3>
+                    <p className="text-gray-600">
+                      Every listing undergoes strict verification for legal clearances and accurate documentation.
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-semibold mb-4">Ride Green</h3>
-                <p className="text-gray-600">Enjoy safe, eco-friendly transportation with real-time monitoring</p>
-              </motion.div>
+                
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                      <FiUser size={20} />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Personalized Service</h3>
+                    <p className="text-gray-600">
+                      Dedicated relationship managers provide tailored solutions for your unique property needs.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                      <FiDollarSign size={20} />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Best Price Guarantee</h3>
+                    <p className="text-gray-600">
+                      Our strong market presence ensures you get the best deals whether buying or selling.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
-<<<<<<< HEAD
+      {/* Testimonials */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              What Our <span className="text-amber-600">Clients</span> Say
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Trusted by thousands of happy customers across India
+            </p>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <Swiper
+              modules={[Navigation, Pagination, Autoplay]}
+              spaceBetween={30}
+              slidesPerView={1}
+              navigation
+              pagination={{ clickable: true }}
+              autoplay={{ delay: 5000 }}
+              breakpoints={{
+                768: {
+                  slidesPerView: 2
+                },
+                1024: {
+                  slidesPerView: 3
+                }
+              }}
+              className="pb-12"
+            >
+              {testimonials.map(testimonial => (
+                <SwiperSlide key={testimonial.id}>
+                  <div className="bg-white p-8 rounded-xl shadow-md h-full">
+                    <div className="flex items-center mb-6">
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-amber-100 mr-4">
+                        <img 
+                          src={testimonial.avatar} 
+                          alt={testimonial.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-lg">{testimonial.name}</h4>
+                        <p className="text-sm text-amber-600">{testimonial.role}</p>
+                      </div>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-6">"{testimonial.content}"</p>
+                    
+                    <div className="flex text-amber-400">
+                      {[...Array(5)].map((_, i) => (
+                        <FiStar key={i} className="fill-current" />
+                      ))}
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </motion.div>
+        </div>
+      </section>
 
-      {/* CTA Section - Enhanced with better visuals */}
-      <section className="relative py-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-emerald-400" />
-        
-        {/* Decorative shapes */}
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute top-20 right-20 w-64 h-64 bg-emerald-300/30 rounded-full blur-3xl" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-10 md:p-16 shadow-2xl border border-white/20">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-10">
-              <div className="md:w-3/5">
-                <motion.h2 
-                  className="text-4xl md:text-5xl font-bold text-white mb-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  viewport={{ once: true }}
-                >
-                  Ready to Go Green?
-                </motion.h2>
-                <motion.p 
-                  className="text-xl text-white/90 mb-8 max-w-2xl"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  viewport={{ once: true }}
-                >
-                  Join thousands of families trusting GreenRide for eco-friendly transportation. Start your journey today and give your children the safest ride to school.
-                </motion.p>
-                
-                <motion.div
-                  className="flex flex-wrap gap-4"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                  viewport={{ once: true }}
-                >
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <Link 
-                      to="/subscription" 
-                      className="inline-block px-10 py-5 bg-white text-emerald-600 rounded-xl font-bold text-lg shadow-2xl hover:shadow-emerald-900/20 hover:shadow-2xl transition-all duration-300 flex items-center gap-3"
-                    >
-                      Start Safe Journey Now
-                      <FiArrowRight className="text-emerald-600" />
-                    </Link>
-                  </motion.div>
-                  
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <Link 
-                      to="/contact" 
-                      className="inline-block px-10 py-5 bg-transparent text-white border-2 border-white/60 rounded-xl font-bold text-lg hover:bg-white/10 transition-all duration-300"
-                    >
-                      Contact Us
-                    </Link>
-                  </motion.div>
-                </motion.div>
-              </div>
-              
+      {/* Popular Locations */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Popular <span className="text-amber-600">Locations</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Explore properties in these high-demand cities
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            {cities.map((city, index) => (
               <motion.div 
-                className="md:w-2/5"
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                viewport={{ once: true }}
+                key={index}
+                variants={fadeInUp}
+                className="group relative rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
               >
                 <img 
-                  src="placeholder-6.png" // Replace with actual CTA illustration
-                  alt="Green Transportation" 
-                  className="w-full h-auto rounded-2xl shadow-2xl"
+                  src={`/city-${index+1}.jpg`} 
+                  alt={city.name}
+                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="text-2xl font-bold text-white mb-1">{city.name}</h3>
+                  <p className="text-white/80">{city.properties} Properties</p>
+                  <Link 
+                    to={`/properties?city=${city.name}`}
+                    className="mt-3 inline-flex items-center text-amber-400 hover:text-amber-300 font-medium"
+                  >
+                    View Properties <FiArrowRight className="ml-2" />
+                  </Link>
+                </div>
               </motion.div>
-            </div>
-          </div>
-=======
-      
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
       {/* CTA Section */}
-      <section className="py-16 bg-primary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to Go Green?</h2>
-          <p className="text-xl text-white opacity-90 mb-8 max-w-2xl mx-auto">
-            Join thousands of families who trust GreenRide for safe, eco-friendly student transportation.
-          </p>
-          <Link to="/subscription" className="btn bg-white text-primary hover:bg-gray-100 btn-lg">
-            View Our Plans
-          </Link>        
->>>>>>> 5b7d2763fee249e9561d05544447396b9f761035
+      <section className="relative py-28 bg-gray-900 overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/pattern.png')] opacity-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-600/20 to-amber-800/20" />
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <motion.h2 
+              className="text-3xl md:text-5xl font-bold text-white mb-6"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              Ready to Find Your <span className="text-amber-400">Dream</span> Property?
+            </motion.h2>
+            <motion.p 
+              className="text-xl text-white/80 max-w-3xl mx-auto mb-10"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              Let our experts guide you through every step of your property journey
+            </motion.p>
+            
+            <motion.div
+              className="flex flex-col sm:flex-row justify-center gap-4"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              viewport={{ once: true }}
+            >
+              <Link 
+                to="/contact"
+                className="px-8 py-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold shadow-lg transition-colors duration-300 flex items-center justify-center gap-2"
+              >
+                <FiPhone />
+                Contact Us
+              </Link>
+              <Link 
+                to="/properties"
+                className="px-8 py-4 bg-transparent hover:bg-white/10 text-white border-2 border-white rounded-lg font-semibold transition-colors duration-300 flex items-center justify-center gap-2"
+              >
+                <FiSearch />
+                Browse Properties
+              </Link>
+            </motion.div>
+          </div>
         </div>
       </section>
     </div>
   );
-}
+};
 
 export default Home;

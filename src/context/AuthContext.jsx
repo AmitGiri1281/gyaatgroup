@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
@@ -19,25 +20,56 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  // Login function
-  const login = (userData) => {
-    // In a real app, this would validate credentials with an API
-    // For demo purposes, we'll simulate successful login
-    setCurrentUser(userData);
-    localStorage.setItem('greenride_user', JSON.stringify(userData));
-    return Promise.resolve(userData);
+  // ✅ Replace your old login function with this one:
+  const login = async (credentials) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      setCurrentUser(data.user);
+      localStorage.setItem("greenride_user", JSON.stringify(data.user));
+      return data.user;
+    } catch (err) {
+      throw err;
+    }
   };
 
-  // Signup function
-  const signup = (userData) => {
-    // In a real app, this would create a new user via API
-    // For demo purposes, we'll simulate successful signup
-    setCurrentUser(userData);
-    localStorage.setItem('greenride_user', JSON.stringify(userData));
-    return Promise.resolve(userData);
+  // Optionally: update signup similarly if needed
+  const signup = async (userData) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Signup failed");
+      }
+
+      setCurrentUser(data.user);
+      localStorage.setItem("greenride_user", JSON.stringify(data.user));
+      return data.user;
+    } catch (err) {
+      throw err;
+    }
   };
 
-  // Logout function
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem('greenride_user');
