@@ -14,6 +14,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-coverflow';
 
+
 // Data
 const propertyTypes = [
   { name: "Residential", icon: <FiHome />, count: 245 },
@@ -273,7 +274,7 @@ const Home = () => {
             className="w-full h-full object-cover"
           >
             <source src="/real-estate-hero.mp4" type="video/mp4" />
-            <img src="/hero-realestate.jpg" alt="Luxury Home" className="w-full h-full object-cover" />
+            <img src="./hero-realestate.jpg" alt="Luxury Home" className="w-full h-full object-cover" />
           </video>
         </div>
         
@@ -928,7 +929,7 @@ const Home = () => {
                 className="group relative rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
               >
                 <img 
-                  src={`/city-${index+1}.jpg`} 
+                  src={`./city-${index+1}.jpg`} 
                   alt={city.name}
                   className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
                 />

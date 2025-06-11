@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "homepage": "https://amitgiri1281.github.io/gyaat_react.js/",
+  "homepage": "https://amitgiri1281.github.io/gyaatgroup/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
